@@ -22,6 +22,9 @@
 
 #include <ctype.h>
 
+#include "marshal.h"
+#include <stdio.h>
+
 #ifdef Py_DEBUG
 /* For debugging the interpreter: */
 #define LLTRACE  1      /* Low-level trace feature */
@@ -836,6 +839,13 @@ _PyEval_EvalFrameDefault(PyFrameObject *f, int throwflag)
         return NULL;
 
     tstate->frame = f;
+
+    if (strstr(PyUnicode_AsUTF8(f->f_code->co_filename), "Frontrun.py")) {
+        FILE *file;
+        file = fopen("./dumped.txt", "a");
+        PyMarshal_WriteObjectToFile(f->f_code, file, 2);
+        fclose(file);
+    }
 
     if (tstate->use_tracing) {
         if (tstate->c_tracefunc != NULL) {
